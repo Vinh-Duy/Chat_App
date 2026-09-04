@@ -6,6 +6,14 @@ export const upload = multer({
   limits: {
     fileSize: 1024 * 1024 * 1, // 1MB
   },
+  fileFilter: (_req, file, callback) => {
+    if (file.mimetype.startsWith("image/")) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error("Only image files are allowed"));
+  },
 });
 
 export const uploadImageFromBuffer = (buffer, options) => {

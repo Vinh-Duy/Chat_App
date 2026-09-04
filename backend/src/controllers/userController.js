@@ -14,6 +14,47 @@ export const authMe = async (req, res) => {
   }
 };
 
+export const updateProfile = async (req, res) => {
+  try {
+    const { displayName, username, email, phone, bio } = req.body;
+
+    if (!displayName?.trim() || !username?.trim() || !email?.trim()) {
+      return res.status(400).json({
+        message: "Display name, username, and email are required",
+      });
+    }
+
+    const duplicate = await User.findOne({
+      _id: { $ne: req.user._id },
+      $or: [
+        { username: username.trim().toLowerCase() },
+        { email: email.trim().toLowerCase() },
+      ],
+    });
+
+    if (duplicate) {
+      return res.status(409).json({ message: "Username or email already exists" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        displayName: displayName.trim(),
+        username: username.trim().toLowerCase(),
+        email: email.trim().toLowerCase(),
+        phone: phone?.trim() || undefined,
+        bio: bio?.trim() || "",
+      },
+      { new: true, runValidators: true }
+    ).select("-hashedPassword");
+
+    return res.status(200).json({ user });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật profile", error);
+    return res.status(500).json({ message: "Profile update failed" });
+  }
+};
+
 export const searchUserByUsername = async (req, res) => {
   try {
     const { username } = req.query;
