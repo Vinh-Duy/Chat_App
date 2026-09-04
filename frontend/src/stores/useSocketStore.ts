@@ -3,6 +3,7 @@ import { io, type Socket } from "socket.io-client";
 import { useAuthStore } from "./useAuthStore";
 import type { SocketState } from "@/types/store";
 import { useChatStore } from "./useChatStore";
+import { useFriendStore } from "./useFriendStore";
 
 const baseURL = import.meta.env.VITE_SOCKET_URL;
 
@@ -31,6 +32,22 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       set({ onlineUsers: userIds });
     });
 
+    socket.on("friend-request", (request) => {
+      useFriendStore.setState((state) => ({
+        receivedList: state.receivedList.some((item) => item._id === request._id)
+          ? state.receivedList
+          : [...state.receivedList, request],
+      }));
+    });
+
+    socket.on("friend-accepted", (friend) => {
+      useFriendStore.setState((state) => ({
+        friends: state.friends.some((item) => item._id === friend._id)
+          ? state.friends
+          : [...state.friends, friend],
+      }));
+    });
+
     // new message
     socket.on("new-message", ({ message, conversation, unreadCounts }) => {
       useChatStore.getState().addMessage(message);
@@ -38,6 +55,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       const lastMessage = {
         _id: conversation.lastMessage._id,
         content: conversation.lastMessage.content,
+        imgUrl: conversation.lastMessage.imgUrl,
         createdAt: conversation.lastMessage.createdAt,
         sender: {
           _id: conversation.lastMessage.senderId,

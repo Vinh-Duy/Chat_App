@@ -9,6 +9,15 @@ interface FetchMessageProps {
 const pageLimit = 50;
 
 export const chatService = {
+  async uploadMessageImage(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post("/messages/upload-image", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data.imgUrl;
+  },
+
   async fetchConversations(): Promise<ConversationResponse> {
     const res = await api.get("/conversations");
     return res.data;
