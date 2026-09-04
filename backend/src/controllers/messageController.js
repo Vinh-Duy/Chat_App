@@ -5,6 +5,25 @@ import {
   updateConversationAfterCreateMessage,
 } from "../utils/messageHelper.js";
 import { io } from "../socket/index.js";
+import { uploadImageFromBuffer } from "../middlewares/uploadMiddleware.js";
+
+export const uploadMessageImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No image uploaded" });
+    }
+
+    const result = await uploadImageFromBuffer(req.file.buffer, {
+      folder: "moji_chat/messages",
+      transformation: [{ width: 1600, height: 1600, crop: "limit" }],
+    });
+
+    return res.status(201).json({ imgUrl: result.secure_url });
+  } catch (error) {
+    console.error("Lỗi khi upload ảnh tin nhắn", error);
+    return res.status(500).json({ message: "Image upload failed" });
+  }
+};
 
 export const sendDirectMessage = async (req, res) => {
   try {
@@ -13,7 +32,7 @@ export const sendDirectMessage = async (req, res) => {
 
     let conversation;
 
-    if (!content) {
+    if (!content && !req.body.imgUrl) {
       return res.status(400).json({ message: "Thiếu nội dung" });
     }
 
@@ -37,6 +56,7 @@ export const sendDirectMessage = async (req, res) => {
       conversationId: conversation._id,
       senderId,
       content,
+      imgUrl: req.body.imgUrl,
     });
 
     updateConversationAfterCreateMessage(conversation, message, senderId);
@@ -58,7 +78,7 @@ export const sendGroupMessage = async (req, res) => {
     const senderId = req.user._id;
     const conversation = req.conversation;
 
-    if (!content) {
+    if (!content && !req.body.imgUrl) {
       return res.status(400).json("Thiếu nội dung");
     }
 
@@ -66,6 +86,7 @@ export const sendGroupMessage = async (req, res) => {
       conversationId,
       senderId,
       content,
+      imgUrl: req.body.imgUrl,
     });
 
     updateConversationAfterCreateMessage(conversation, message, senderId);
