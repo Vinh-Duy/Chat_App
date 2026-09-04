@@ -2,6 +2,7 @@ import { useUserStore } from "@/stores/useUserStore";
 import { useRef } from "react";
 import { Button } from "../ui/button";
 import { Camera } from "lucide-react";
+import { toast } from "sonner";
 
 const AvatarUploader = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -14,6 +15,11 @@ const AvatarUploader = () => {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/") || file.size > 1024 * 1024) {
+      toast.error("Please select an image smaller than 1 MB");
       return;
     }
 
@@ -38,6 +44,7 @@ const AvatarUploader = () => {
       <input
         type="file"
         hidden
+        accept="image/*"
         ref={fileInputRef}
         onChange={handleUpload}
       />

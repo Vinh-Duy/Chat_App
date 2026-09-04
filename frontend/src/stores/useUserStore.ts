@@ -5,7 +5,7 @@ import { useAuthStore } from "./useAuthStore";
 import { toast } from "sonner";
 import { useChatStore } from "./useChatStore";
 
-export const useUserStore = create<UserState>((set, get) => ({
+export const useUserStore = create<UserState>(() => ({
   updateAvatarUrl: async (formData) => {
     try {
       const { user, setUser } = useAuthStore.getState();
@@ -22,6 +22,18 @@ export const useUserStore = create<UserState>((set, get) => ({
     } catch (error) {
       console.error("Lỗi khi updateAvatarUrl", error);
       toast.error("Upload avatar không thành công!");
+    }
+  },
+  updateProfile: async (profile) => {
+    try {
+      const user = await userService.updateProfile(profile);
+      useAuthStore.getState().setUser(user);
+      toast.success("Profile updated successfully");
+      return user;
+    } catch (error) {
+      console.error("Lỗi khi cập nhật profile", error);
+      toast.error("Không thể cập nhật profile!");
+      return null;
     }
   },
 }));

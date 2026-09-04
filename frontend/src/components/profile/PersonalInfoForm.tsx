@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/types/user";
+import { useEffect, useState } from "react";
+import { useUserStore } from "@/stores/useUserStore";
 
 type EditableField = {
   key: keyof Pick<User, "displayName" | "username" | "email" | "phone">;
@@ -30,7 +32,29 @@ type Props = {
 };
 
 const PersonalInfoForm = ({ userInfo }: Props) => {
-  if (!userInfo) return null;
+  const updateProfile = useUserStore((state) => state.updateProfile);
+  const [form, setForm] = useState(() => userInfo);
+
+  useEffect(() => {
+    setForm(userInfo);
+  }, [userInfo]);
+
+  if (!userInfo || !form) return null;
+
+  const updateField = (key: keyof User, value: string) => {
+    setForm((current) => (current ? { ...current, [key]: value } : current));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await updateProfile({
+      displayName: form.displayName,
+      username: form.username,
+      email: form.email,
+      phone: form.phone,
+      bio: form.bio,
+    });
+  };
 
   return (
     <Card className="glass-strong border-border/30">
@@ -44,7 +68,8 @@ const PersonalInfoForm = ({ userInfo }: Props) => {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent>
+        <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {PERSONAL_FIELDS.map(({ key, label, type }) => (
             <div
@@ -56,7 +81,7 @@ const PersonalInfoForm = ({ userInfo }: Props) => {
                 id={key}
                 type={type ?? "text"}
                 value={userInfo[key] ?? ""}
-                onChange={() => {}}
+                onChange={(event) => updateField(key, event.target.value)}
                 className="glass-light border-border/30"
               />
             </div>
@@ -69,14 +94,15 @@ const PersonalInfoForm = ({ userInfo }: Props) => {
             id="bio"
             rows={3}
             value={userInfo.bio ?? ""}
-            onChange={() => {}}
+            onChange={(event) => updateField("bio", event.target.value)}
             className="glass-light border-border/30 resize-none"
           />
         </div>
 
-        <Button className="w-full md:w-auto bg-gradient-primary hover:opacity-90 transition-opacity">
+        <Button type="submit" className="w-full md:w-auto bg-gradient-primary hover:opacity-90 transition-opacity">
           Lưu thay đổi
         </Button>
+        </form>
       </CardContent>
     </Card>
   );

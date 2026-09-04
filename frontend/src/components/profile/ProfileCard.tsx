@@ -14,9 +14,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
   const { onlineUsers } = useSocketStore();
   if (!user) return;
 
-  if (!user.bio) {
-    user.bio = "Will code for food 💻";
-  }
+  const bio = user.bio || "Will code for food 💻";
 
   const isOnline = onlineUsers.includes(user._id) ? true : false;
 
@@ -40,9 +38,9 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
             {user.displayName}
           </h1>
 
-          {user.bio && (
+          {bio && (
             <p className="text-white/70 text-sm mt-2 max-w-lg line-clamp-2">
-              {user.bio}
+              {bio}
             </p>
           )}
         </div>
