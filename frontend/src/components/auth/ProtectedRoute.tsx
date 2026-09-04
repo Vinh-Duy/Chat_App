@@ -8,11 +8,14 @@ const ProtectedRoute = () => {
 
   const init = async () => {
     // có thể xảy ra khi refresh trang
-    if (!accessToken) {
+    let currentAccessToken = accessToken;
+
+    if (!currentAccessToken) {
       await refresh();
+      currentAccessToken = useAuthStore.getState().accessToken;
     }
 
-    if (accessToken && !user) {
+    if (currentAccessToken && !useAuthStore.getState().user) {
       await fetchMe();
     }
 
@@ -21,7 +24,7 @@ const ProtectedRoute = () => {
 
   useEffect(() => {
     init();
-  }, []);
+  }, [accessToken, fetchMe, refresh, user]);
 
   if (starting || loading) {
     return (

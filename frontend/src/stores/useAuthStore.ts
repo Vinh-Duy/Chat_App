@@ -21,8 +21,7 @@ export const useAuthStore = create<AuthState>()(
       clearState: () => {
         set({ accessToken: null, user: null, loading: false });
         useChatStore.getState().reset();
-        localStorage.clear();
-        sessionStorage.clear();
+        localStorage.removeItem("auth-storage");
       },
       signUp: async (username, password, email, firstName, lastName) => {
         try {
@@ -34,9 +33,11 @@ export const useAuthStore = create<AuthState>()(
           toast.success(
             "Đăng ký thành công! Bạn sẽ được chuyển sang trang đăng nhập."
           );
+          return true;
         } catch (error) {
           console.error(error);
           toast.error("Đăng ký không thành công");
+          return false;
         } finally {
           set({ loading: false });
         }
@@ -46,16 +47,17 @@ export const useAuthStore = create<AuthState>()(
           get().clearState();
           set({ loading: true });
 
-          const { accessToken } = await authService.signIn(username, password);
+          const { accessToken, user } = await authService.signIn(username, password);
           get().setAccessToken(accessToken);
-
-          await get().fetchMe();
+          get().setUser(user);
           useChatStore.getState().fetchConversations();
 
           toast.success("Chào mừng bạn quay lại với ChatsApp");
+          return true;
         } catch (error) {
           console.error(error);
           toast.error("Đăng nhập không thành công!");
+          return false;
         } finally {
           set({ loading: false });
         }

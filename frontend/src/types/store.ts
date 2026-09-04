@@ -16,8 +16,8 @@ export interface AuthState {
     email: string,
     firstName: string,
     lastName: string
-  ) => Promise<void>;
-  signIn: (username: string, password: string) => Promise<void>;
+  ) => Promise<boolean>;
+  signIn: (username: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   fetchMe: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -61,7 +61,9 @@ export interface ChatState {
   // add message
   addMessage: (message: Message) => Promise<void>;
   // update convo
-  updateConversation: (conversation: unknown) => void;
+  updateConversation: (
+    conversation: Partial<Conversation> & Pick<Conversation, "_id">
+  ) => void;
   markAsSeen: () => Promise<void>;
   addConvo: (convo: Conversation) => void;
   createConversation: (
@@ -93,4 +95,7 @@ export interface FriendState {
 
 export interface UserState {
   updateAvatarUrl: (formData: FormData) => Promise<void>;
+  updateProfile: (
+    profile: Pick<User, "displayName" | "username" | "email" | "phone" | "bio">
+  ) => Promise<User | null>;
 }
