@@ -24,6 +24,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
+app.get("/api/health", (_req, res) => {
+  res.status(200).json({ status: "ok", service: "chatsapp-api" });
+});
+
 // CLOUDINARY Configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
