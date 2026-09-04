@@ -1,6 +1,7 @@
 import Friend from "../models/Friend.js";
 import User from "../models/User.js";
 import FriendRequest from "../models/FriendRequest.js";
+import { io } from "../socket/index.js";
 
 export const sendFriendRequest = async (req, res) => {
   try {
@@ -8,7 +9,11 @@ export const sendFriendRequest = async (req, res) => {
 
     const from = req.user._id;
 
-    if (from === to) {
+    if (!to) {
+      return res.status(400).json({ message: "Recipient is required" });
+    }
+
+    if (from.toString() === to?.toString()) {
       return res
         .status(400)
         .json({ message: "Không thể gửi lời mời kết bạn cho chính mình" });
@@ -51,6 +56,12 @@ export const sendFriendRequest = async (req, res) => {
       message,
     });
 
+    await request.populate([
+      { path: "from", select: "_id username displayName avatarUrl" },
+      { path: "to", select: "_id username displayName avatarUrl" },
+    ]);
+    io.to(to.toString()).emit("friend-request", request);
+
     return res
       .status(201)
       .json({ message: "Gửi lời mời kết bạn thành công", request });
@@ -85,13 +96,21 @@ export const acceptFriendRequest = async (req, res) => {
     await FriendRequest.findByIdAndDelete(requestId);
 
     const from = await User.findById(request.from)
-      .select("_id displayName avatarUrl")
+      .select("_id username displayName avatarUrl")
       .lean();
+
+    io.to(request.from.toString()).emit("friend-accepted", {
+      _id: request.to,
+      displayName: req.user.displayName,
+      avatarUrl: req.user.avatarUrl,
+      username: req.user.username,
+    });
 
     return res.status(200).json({
       message: "Chấp nhận lời mời kết bạn thành công",
       newFriend: {
         _id: from?._id,
+        username: from?.username,
         displayName: from?.displayName,
         avatarUrl: from?.avatarUrl,
       },
