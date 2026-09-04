@@ -2,7 +2,7 @@ import { friendService } from "@/services/friendService";
 import type { FriendState } from "@/types/store";
 import { create } from "zustand";
 
-export const useFriendStore = create<FriendState>((set, get) => ({
+export const useFriendStore = create<FriendState>((set) => ({
   friends: [],
   loading: false,
   receivedList: [],
@@ -53,13 +53,18 @@ export const useFriendStore = create<FriendState>((set, get) => ({
   acceptRequest: async (requestId) => {
     try {
       set({ loading: true });
-      await friendService.acceptRequest(requestId);
+      const newFriend = await friendService.acceptRequest(requestId);
 
       set((state) => ({
         receivedList: state.receivedList.filter((r) => r._id !== requestId),
+        friends: newFriend
+          ? [...state.friends.filter((friend) => friend._id !== newFriend._id), newFriend]
+          : state.friends,
       }));
     } catch (error) {
       console.error("Lỗi xảy ra khi acceptRequest", error);
+    } finally {
+      set({ loading: false });
     }
   },
   declineRequest: async (requestId) => {

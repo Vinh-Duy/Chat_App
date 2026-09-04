@@ -2,7 +2,7 @@ import api from "@/lib/axios";
 
 export const friendService = {
   async searchByUsername(username: string) {
-    const res = await api.get(`/users/search?username=${username}`);
+    const res = await api.get("/users/search", { params: { username } });
     return res.data.user;
   },
 
@@ -22,20 +22,12 @@ export const friendService = {
   },
 
   async acceptRequest(requestId: string) {
-    try {
-      const res = await api.post(`/friends/requests/${requestId}/accept`);
-      return res.data.requestAcceptedBy;
-    } catch (error) {
-      console.error("Lỗi khi gửi acceptRequest", error);
-    }
+    const res = await api.post(`/friends/requests/${requestId}/accept`);
+    return res.data.newFriend;
   },
 
   async declineRequest(requestId: string) {
-    try {
-      await api.post(`/friends/requests/${requestId}/decline`);
-    } catch (error) {
-      console.error("Lỗi khi gửi declineRequest", error);
-    }
+    await api.post(`/friends/requests/${requestId}/decline`);
   },
 
   async getFriendList() {
