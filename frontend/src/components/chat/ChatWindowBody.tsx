@@ -10,12 +10,18 @@ const ChatWindowBody = () => {
     conversations,
     messages: allMessages,
     fetchMessages,
+    messageSearchQuery,
   } = useChatStore();
   const [lastMessageStatus, setLastMessageStatus] = useState<"delivered" | "seen">(
     "delivered"
   );
 
-  const messages = allMessages[activeConversationId!]?.items ?? [];
+  const allChatMessages = allMessages[activeConversationId!]?.items ?? [];
+  const messages = messageSearchQuery.trim()
+    ? allChatMessages.filter((message) =>
+        message.content?.toLowerCase().includes(messageSearchQuery.trim().toLowerCase())
+      )
+    : allChatMessages;
   const reversedMessages = [...messages].reverse();
   const hasMore = allMessages[activeConversationId!]?.hasMore ?? false;
   const selectedConvo = conversations.find((c) => c._id === activeConversationId);

@@ -7,9 +7,16 @@ import UserAvatar from "./UserAvatar";
 import StatusBadge from "./StatusBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
 import { useSocketStore } from "@/stores/useSocketStore";
+import { Search, X } from "lucide-react";
+import { Input } from "../ui/input";
 
 const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
-  const { conversations, activeConversationId } = useChatStore();
+  const {
+    conversations,
+    activeConversationId,
+    messageSearchQuery,
+    setMessageSearchQuery,
+  } = useChatStore();
   const { user } = useAuthStore();
   const { onlineUsers, typingUsers } = useSocketStore();
 
@@ -66,12 +73,32 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
           </div>
 
           {/* name */}
-          <div>
+          <div className="min-w-0 flex-1">
             <h2 className="font-semibold text-foreground">
               {chat.type === "direct" ? otherUser?.displayName : chat.group?.name}
             </h2>
             {(typingUsers[chat._id]?.length ?? 0) > 0 && (
               <p className="text-xs text-primary animate-pulse">Đang nhập...</p>
+            )}
+          </div>
+          <div className="hidden items-center gap-1 sm:flex">
+            <Search className="size-4 text-muted-foreground" />
+            <Input
+              aria-label="Search messages"
+              value={messageSearchQuery}
+              onChange={(event) => setMessageSearchQuery(event.target.value)}
+              placeholder="Search"
+              className="h-8 w-28 border-0 bg-muted/50 text-xs focus-visible:ring-1"
+            />
+            {messageSearchQuery && (
+              <button
+                type="button"
+                aria-label="Clear message search"
+                onClick={() => setMessageSearchQuery("")}
+                className="rounded p-1 text-muted-foreground hover:bg-muted"
+              >
+                <X className="size-3" />
+              </button>
             )}
           </div>
         </div>

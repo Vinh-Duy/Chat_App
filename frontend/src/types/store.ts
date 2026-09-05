@@ -40,6 +40,7 @@ export interface ChatState {
     }
   >;
   activeConversationId: string | null;
+  messageSearchQuery: string;
   replyTo: Message | null;
   editingMessage: Message | null;
   convoLoading: boolean;
@@ -48,6 +49,7 @@ export interface ChatState {
   reset: () => void;
 
   setActiveConversation: (id: string | null) => void;
+  setMessageSearchQuery: (query: string) => void;
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId?: string) => Promise<void>;
   sendDirectMessage: (recipientId: string, content: string, imgUrl?: string, replyToId?: string) => Promise<void>;

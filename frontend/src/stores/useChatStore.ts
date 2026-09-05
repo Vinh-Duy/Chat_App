@@ -11,18 +11,23 @@ export const useChatStore = create<ChatState>()(
       conversations: [],
       messages: {},
       activeConversationId: null,
+      messageSearchQuery: "",
       replyTo: null,
       editingMessage: null,
       convoLoading: false, // convo loading
       messageLoading: false,
       loading: false,
 
-      setActiveConversation: (id) => set({ activeConversationId: id }),
+      setActiveConversation: (id: string | null) =>
+        set({ activeConversationId: id, messageSearchQuery: "" }),
+      setMessageSearchQuery: (messageSearchQuery: string) =>
+        set({ messageSearchQuery }),
       reset: () => {
         set({
           conversations: [],
           messages: {},
           activeConversationId: null,
+          messageSearchQuery: "",
           replyTo: null,
           editingMessage: null,
           convoLoading: false,
