@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { useAuthStore } from "./useAuthStore";
 import { toast } from "sonner";
 import { useChatStore } from "./useChatStore";
+import axios from "axios";
 
 export const useUserStore = create<UserState>(() => ({
   updateAvatarUrl: async (formData) => {
@@ -32,7 +33,10 @@ export const useUserStore = create<UserState>(() => ({
       return user;
     } catch (error) {
       console.error("Lỗi khi cập nhật profile", error);
-      toast.error("Không thể cập nhật profile!");
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message
+        : undefined;
+      toast.error(message || "Không thể cập nhật profile!");
       return null;
     }
   },

@@ -34,6 +34,7 @@ type Props = {
 const PersonalInfoForm = ({ userInfo }: Props) => {
   const updateProfile = useUserStore((state) => state.updateProfile);
   const [form, setForm] = useState(() => userInfo);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setForm(userInfo);
@@ -47,13 +48,22 @@ const PersonalInfoForm = ({ userInfo }: Props) => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await updateProfile({
-      displayName: form.displayName,
-      username: form.username,
-      email: form.email,
-      phone: form.phone,
-      bio: form.bio,
-    });
+    setSaving(true);
+    try {
+      const updatedUser = await updateProfile({
+        displayName: form.displayName,
+        username: form.username,
+        email: form.email,
+        phone: form.phone,
+        bio: form.bio,
+      });
+
+      if (updatedUser) {
+        setForm(updatedUser);
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -99,8 +109,8 @@ const PersonalInfoForm = ({ userInfo }: Props) => {
           />
         </div>
 
-        <Button type="submit" className="w-full md:w-auto bg-gradient-primary hover:opacity-90 transition-opacity">
-          Lưu thay đổi
+        <Button type="submit" disabled={saving} className="w-full md:w-auto bg-gradient-primary hover:opacity-90 transition-opacity">
+          {saving ? "Đang lưu..." : "Lưu thay đổi"}
         </Button>
         </form>
       </CardContent>
