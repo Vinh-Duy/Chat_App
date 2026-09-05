@@ -4,7 +4,7 @@ import UserAvatar from "./UserAvatar";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Pencil, Reply, SmilePlus, Trash2 } from "lucide-react";
+import { Forward, Pencil, Reply, SmilePlus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { chatService } from "@/services/chatService";
 import { useChatStore } from "@/stores/useChatStore";
@@ -34,6 +34,9 @@ const MessageItem = ({
   const setReplyTo = useChatStore((state) => state.setReplyTo);
   const setEditingMessage = useChatStore((state) => state.setEditingMessage);
   const removeMessage = useChatStore((state) => state.removeMessage);
+  const conversations = useChatStore((state) => state.conversations);
+  const [forwardMenuOpen, setForwardMenuOpen] = useState(false);
+  const [forwarding, setForwarding] = useState(false);
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
 
   const isShowTime =
@@ -145,6 +148,46 @@ const MessageItem = ({
             >
               <SmilePlus className="size-4" />
             </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Forward message"
+              className="absolute -right-32 top-1/2 size-7 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={() => setForwardMenuOpen((open) => !open)}
+            >
+              <Forward className="size-4" />
+            </Button>
+
+            {forwardMenuOpen && (
+              <div className="absolute right-0 top-full z-30 mt-1 max-h-48 w-52 overflow-y-auto rounded-md border bg-background p-1 shadow-lg">
+                <p className="px-2 py-1 text-xs font-medium text-muted-foreground">Forward to...</p>
+                {conversations
+                  .filter((conversation) => conversation._id !== selectedConvo._id)
+                  .map((conversation) => (
+                    <button
+                      key={conversation._id}
+                      type="button"
+                      className="block w-full truncate rounded px-2 py-2 text-left text-xs hover:bg-muted"
+                      disabled={forwarding}
+                      onClick={async () => {
+                        setForwarding(true);
+                        try {
+                          await chatService.forwardMessage(message._id, conversation._id);
+                          setForwardMenuOpen(false);
+                        } finally {
+                          setForwarding(false);
+                        }
+                      }}
+                    >
+                      {conversation.type === "group"
+                        ? conversation.group?.name
+                        : conversation.participants.map((participant) => participant.displayName).join(", ")}
+                    </button>
+                  ))}
+              </div>
+            )}
 
             {message.isOwn && (
               <>

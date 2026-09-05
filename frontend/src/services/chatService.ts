@@ -83,6 +83,11 @@ export const chatService = {
     await api.delete(`/messages/${messageId}`);
   },
 
+  async forwardMessage(messageId: string, conversationId: string) {
+    const res = await api.post(`/messages/${messageId}/forward`, { conversationId });
+    return res.data.message as Message;
+  },
+
   async createConversation(
     type: "direct" | "group",
     name: string,
