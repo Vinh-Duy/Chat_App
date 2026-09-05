@@ -10,6 +10,7 @@ const baseURL = import.meta.env.VITE_SOCKET_URL;
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   onlineUsers: [],
+  typingUsers: {},
   connectSocket: () => {
     const accessToken = useAuthStore.getState().accessToken;
     const existingSocket = get().socket;
@@ -30,6 +31,31 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     // online users
     socket.on("online-users", (userIds) => {
       set({ onlineUsers: userIds });
+    });
+
+    socket.on("typing-start", ({ conversationId, user }) => {
+      set((state) => {
+        const current = state.typingUsers[conversationId] ?? [];
+        if (current.some((item) => item._id === user._id)) return state;
+
+        return {
+          typingUsers: {
+            ...state.typingUsers,
+            [conversationId]: [...current, user],
+          },
+        };
+      });
+    });
+
+    socket.on("typing-stop", ({ conversationId, userId }) => {
+      set((state) => ({
+        typingUsers: {
+          ...state.typingUsers,
+          [conversationId]: (state.typingUsers[conversationId] ?? []).filter(
+            (item) => item._id !== userId
+          ),
+        },
+      }));
     });
 
     socket.on("friend-request", (request) => {
@@ -100,7 +126,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const socket = get().socket;
     if (socket) {
       socket.disconnect();
-      set({ socket: null });
+      set({ socket: null, typingUsers: {} });
     }
   },
 }));

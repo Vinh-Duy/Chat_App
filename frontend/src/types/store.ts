@@ -76,6 +76,7 @@ export interface ChatState {
 export interface SocketState {
   socket: Socket | null;
   onlineUsers: string[];
+  typingUsers: Record<string, { _id: string; displayName: string }[]>;
   connectSocket: () => void;
   disconnectSocket: () => void;
 }

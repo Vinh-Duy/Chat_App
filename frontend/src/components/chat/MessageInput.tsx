@@ -1,7 +1,6 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { Conversation } from "@/types/chat";
-import { useState } from "react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { ImagePlus, Send } from "lucide-react";
 import { Input } from "../ui/input";
@@ -9,6 +8,7 @@ import EmojiPicker from "./EmojiPicker";
 import { useChatStore } from "@/stores/useChatStore";
 import { chatService } from "@/services/chatService";
 import { toast } from "sonner";
+import { useSocketStore } from "@/stores/useSocketStore";
 
 const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
   const { user } = useAuthStore();
@@ -16,10 +16,30 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
   const [value, setValue] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const socket = useSocketStore((state) => state.socket);
 
-  if (!user) return;
+  useEffect(() => {
+    if (!socket || !selectedConvo._id) return;
+
+    if (value.trim()) {
+      socket.emit("typing-start", selectedConvo._id);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        socket.emit("typing-stop", selectedConvo._id);
+      }, 1200);
+    } else {
+      socket.emit("typing-stop", selectedConvo._id);
+    }
+
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      socket.emit("typing-stop", selectedConvo._id);
+    };
+  }, [socket, selectedConvo._id, value]);
 
   const sendMessage = async () => {
+    if (!user) return;
     if (!value.trim() && !image) return;
     const currValue = value;
     setValue("");

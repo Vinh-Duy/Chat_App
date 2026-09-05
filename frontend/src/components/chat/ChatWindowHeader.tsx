@@ -11,7 +11,7 @@ import { useSocketStore } from "@/stores/useSocketStore";
 const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
   const { conversations, activeConversationId } = useChatStore();
   const { user } = useAuthStore();
-  const { onlineUsers } = useSocketStore();
+  const { onlineUsers, typingUsers } = useSocketStore();
 
   let otherUser;
 
@@ -66,9 +66,14 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
           </div>
 
           {/* name */}
-          <h2 className="font-semibold text-foreground">
-            {chat.type === "direct" ? otherUser?.displayName : chat.group?.name}
-          </h2>
+          <div>
+            <h2 className="font-semibold text-foreground">
+              {chat.type === "direct" ? otherUser?.displayName : chat.group?.name}
+            </h2>
+            {(typingUsers[chat._id]?.length ?? 0) > 0 && (
+              <p className="text-xs text-primary animate-pulse">Đang nhập...</p>
+            )}
+          </div>
         </div>
       </div>
     </header>
