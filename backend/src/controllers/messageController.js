@@ -27,7 +27,7 @@ export const uploadMessageImage = async (req, res) => {
 
 export const sendDirectMessage = async (req, res) => {
   try {
-    const { recipientId, content, conversationId } = req.body;
+    const { recipientId, content, conversationId, replyToId } = req.body;
     const senderId = req.user._id;
 
     let conversation;
@@ -52,11 +52,15 @@ export const sendDirectMessage = async (req, res) => {
       });
     }
 
+    const replyTo = replyToId ? await Message.findById(replyToId).select("content senderId") : null;
     const message = await Message.create({
       conversationId: conversation._id,
       senderId,
       content,
       imgUrl: req.body.imgUrl,
+      replyTo: replyTo
+        ? { messageId: replyTo._id, content: replyTo.content, senderId: replyTo.senderId }
+        : undefined,
     });
 
     updateConversationAfterCreateMessage(conversation, message, senderId);
@@ -74,7 +78,7 @@ export const sendDirectMessage = async (req, res) => {
 
 export const sendGroupMessage = async (req, res) => {
   try {
-    const { conversationId, content } = req.body;
+    const { conversationId, content, replyToId } = req.body;
     const senderId = req.user._id;
     const conversation = req.conversation;
 
@@ -82,11 +86,15 @@ export const sendGroupMessage = async (req, res) => {
       return res.status(400).json("Thiếu nội dung");
     }
 
+    const replyTo = replyToId ? await Message.findById(replyToId).select("content senderId") : null;
     const message = await Message.create({
       conversationId,
       senderId,
       content,
       imgUrl: req.body.imgUrl,
+      replyTo: replyTo
+        ? { messageId: replyTo._id, content: replyTo.content, senderId: replyTo.senderId }
+        : undefined,
     });
 
     updateConversationAfterCreateMessage(conversation, message, senderId);
