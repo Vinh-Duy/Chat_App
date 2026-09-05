@@ -11,6 +11,9 @@ export const useChatStore = create<ChatState>()(
       conversations: [],
       messages: {},
       activeConversationId: null,
+      pinnedConversationIds: [],
+      mutedConversationIds: [],
+      archivedConversationIds: [],
       messageSearchQuery: "",
       replyTo: null,
       editingMessage: null,
@@ -20,6 +23,24 @@ export const useChatStore = create<ChatState>()(
 
       setActiveConversation: (id: string | null) =>
         set({ activeConversationId: id, messageSearchQuery: "" }),
+      togglePinnedConversation: (id) =>
+        set((state) => ({
+          pinnedConversationIds: state.pinnedConversationIds.includes(id)
+            ? state.pinnedConversationIds.filter((item) => item !== id)
+            : [...state.pinnedConversationIds, id],
+        })),
+      toggleMutedConversation: (id) =>
+        set((state) => ({
+          mutedConversationIds: state.mutedConversationIds.includes(id)
+            ? state.mutedConversationIds.filter((item) => item !== id)
+            : [...state.mutedConversationIds, id],
+        })),
+      toggleArchivedConversation: (id) =>
+        set((state) => ({
+          archivedConversationIds: state.archivedConversationIds.includes(id)
+            ? state.archivedConversationIds.filter((item) => item !== id)
+            : [...state.archivedConversationIds, id],
+        })),
       setMessageSearchQuery: (messageSearchQuery: string) =>
         set({ messageSearchQuery }),
       reset: () => {
@@ -27,6 +48,9 @@ export const useChatStore = create<ChatState>()(
           conversations: [],
           messages: {},
           activeConversationId: null,
+          pinnedConversationIds: [],
+          mutedConversationIds: [],
+          archivedConversationIds: [],
           messageSearchQuery: "",
           replyTo: null,
           editingMessage: null,
@@ -286,7 +310,12 @@ export const useChatStore = create<ChatState>()(
     }),
     {
       name: "chat-storage",
-      partialize: (state) => ({ conversations: state.conversations }),
+      partialize: (state) => ({
+        conversations: state.conversations,
+        pinnedConversationIds: state.pinnedConversationIds,
+        mutedConversationIds: state.mutedConversationIds,
+        archivedConversationIds: state.archivedConversationIds,
+      }),
     }
   )
 );

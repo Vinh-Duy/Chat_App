@@ -7,7 +7,7 @@ import GroupChatAvatar from "./GroupChatAvatar";
 
 const GroupChatCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
-  const { activeConversationId, setActiveConversation, messages, fetchMessages } =
+  const { activeConversationId, setActiveConversation, messages, fetchMessages, pinnedConversationIds, mutedConversationIds, togglePinnedConversation, toggleMutedConversation, toggleArchivedConversation } =
     useChatStore();
 
   if (!user) return null;
@@ -33,6 +33,11 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
       isActive={activeConversationId === convo._id}
       onSelect={handleSelectConversation}
       unreadCount={unreadCount}
+      isPinned={pinnedConversationIds.includes(convo._id)}
+      isMuted={mutedConversationIds.includes(convo._id)}
+      onTogglePin={() => togglePinnedConversation(convo._id)}
+      onToggleMute={() => toggleMutedConversation(convo._id)}
+      onToggleArchive={() => toggleArchivedConversation(convo._id)}
       leftSection={
         <>
           {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}

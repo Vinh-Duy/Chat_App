@@ -40,6 +40,9 @@ export interface ChatState {
     }
   >;
   activeConversationId: string | null;
+  pinnedConversationIds: string[];
+  mutedConversationIds: string[];
+  archivedConversationIds: string[];
   messageSearchQuery: string;
   replyTo: Message | null;
   editingMessage: Message | null;
@@ -49,6 +52,9 @@ export interface ChatState {
   reset: () => void;
 
   setActiveConversation: (id: string | null) => void;
+  togglePinnedConversation: (id: string) => void;
+  toggleMutedConversation: (id: string) => void;
+  toggleArchivedConversation: (id: string) => void;
   setMessageSearchQuery: (query: string) => void;
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId?: string) => Promise<void>;

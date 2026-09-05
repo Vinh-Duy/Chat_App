@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { formatChatListTime, cn } from "@/lib/utils";
-import { MoreHorizontal } from "lucide-react";
+import { Archive, BellOff, MoreHorizontal, Pin } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface ChatCardProps {
   convoId: string;
@@ -11,6 +12,11 @@ interface ChatCardProps {
   unreadCount?: number;
   leftSection: React.ReactNode;
   subtitle: React.ReactNode;
+  isPinned?: boolean;
+  isMuted?: boolean;
+  onTogglePin?: () => void;
+  onToggleMute?: () => void;
+  onToggleArchive?: () => void;
 }
 
 const ChatCard = ({
@@ -22,6 +28,11 @@ const ChatCard = ({
   unreadCount,
   leftSection,
   subtitle,
+  isPinned = false,
+  isMuted = false,
+  onTogglePin,
+  onToggleMute,
+  onToggleArchive,
 }: ChatCardProps) => {
   return (
     <Card
@@ -54,7 +65,33 @@ const ChatCard = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 flex-1 min-w-0">{subtitle}</div>
-            <MoreHorizontal className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 hover:size-5 transition-smooth" />
+            <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+              {isPinned && <Pin className="size-3 text-primary" />}
+              {isMuted && <BellOff className="size-3 text-muted-foreground" />}
+              <div className="group/menu relative">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  aria-label="Conversation options"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <MoreHorizontal className="size-4" />
+                </Button>
+                <div className="pointer-events-none absolute right-0 top-7 z-20 w-32 rounded-md border bg-background p-1 opacity-0 shadow-lg group-focus-within/menu:pointer-events-auto group-focus-within/menu:opacity-100">
+                  <button type="button" className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted" onClick={onTogglePin}>
+                    <Pin className="size-3" /> {isPinned ? "Unpin" : "Pin"}
+                  </button>
+                  <button type="button" className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted" onClick={onToggleMute}>
+                    <BellOff className="size-3" /> {isMuted ? "Unmute" : "Mute"}
+                  </button>
+                  <button type="button" className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted" onClick={onToggleArchive}>
+                    <Archive className="size-3" /> Archive
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
