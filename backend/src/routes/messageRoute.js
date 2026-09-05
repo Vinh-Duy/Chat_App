@@ -7,6 +7,7 @@ import {
   toggleMessageReaction,
   editMessage,
   deleteMessage,
+  forwardMessage,
 } from "../controllers/messageController.js";
 import {
   checkFriendship,
@@ -22,5 +23,6 @@ router.post("/upload-image", upload.single("file"), uploadMessageImage);
 router.patch("/:messageId/reaction", toggleMessageReaction);
 router.patch("/:messageId", editMessage);
 router.delete("/:messageId", deleteMessage);
+router.post("/:messageId/forward", forwardMessage);
 
 export default router;

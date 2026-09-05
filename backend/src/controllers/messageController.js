@@ -200,3 +200,37 @@ export const deleteMessage = async (req, res) => {
     return res.status(500).json({ message: "Could not delete message" });
   }
 };
+
+export const forwardMessage = async (req, res) => {
+  try {
+    const source = await Message.findById(req.params.messageId);
+    const target = await Conversation.findById(req.body.conversationId);
+
+    if (!source || !target) {
+      return res.status(404).json({ message: "Message or conversation not found" });
+    }
+
+    const isMember = target.participants.some(
+      (participant) => participant.userId.toString() === req.user._id.toString()
+    );
+    if (!isMember) {
+      return res.status(403).json({ message: "You are not in this conversation" });
+    }
+
+    const message = await Message.create({
+      conversationId: target._id,
+      senderId: req.user._id,
+      content: source.content,
+      imgUrl: source.imgUrl,
+    });
+
+    updateConversationAfterCreateMessage(target, message, req.user._id);
+    await target.save();
+    emitNewMessage(io, target, message);
+
+    return res.status(201).json({ message });
+  } catch (error) {
+    console.error("Failed to forward message", error);
+    return res.status(500).json({ message: "Could not forward message" });
+  }
+};
