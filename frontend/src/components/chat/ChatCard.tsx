@@ -2,6 +2,12 @@ import { Card } from "@/components/ui/card";
 import { formatChatListTime, cn } from "@/lib/utils";
 import { Archive, BellOff, MoreHorizontal, Pin } from "lucide-react";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface ChatCardProps {
   convoId: string;
@@ -68,7 +74,8 @@ const ChatCard = ({
             <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
               {isPinned && <Pin className="size-3 text-primary" />}
               {isMuted && <BellOff className="size-3 text-muted-foreground" />}
-              <div className="group/menu relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                 <Button
                   type="button"
                   variant="ghost"
@@ -79,18 +86,19 @@ const ChatCard = ({
                 >
                   <MoreHorizontal className="size-4" />
                 </Button>
-                <div className="pointer-events-none absolute right-0 top-7 z-20 w-32 rounded-md border bg-background p-1 opacity-0 shadow-lg group-focus-within/menu:pointer-events-auto group-focus-within/menu:opacity-100">
-                  <button type="button" className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted" onClick={onTogglePin}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-32">
+                  <DropdownMenuItem onClick={onTogglePin}>
                     <Pin className="size-3" /> {isPinned ? "Unpin" : "Pin"}
-                  </button>
-                  <button type="button" className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted" onClick={onToggleMute}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onToggleMute}>
                     <BellOff className="size-3" /> {isMuted ? "Unmute" : "Mute"}
-                  </button>
-                  <button type="button" className="flex w-full items-center gap-2 rounded px-2 py-1 text-xs hover:bg-muted" onClick={onToggleArchive}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onToggleArchive}>
                     <Archive className="size-3" /> Archive
-                  </button>
-                </div>
-              </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
