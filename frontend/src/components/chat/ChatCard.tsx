@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { formatOnlineTime, cn } from "@/lib/utils";
+import { formatChatListTime, cn } from "@/lib/utils";
 import { MoreHorizontal } from "lucide-react";
 
 interface ChatCardProps {
@@ -48,7 +48,7 @@ const ChatCard = ({
             </h3>
 
             <span className="text-xs text-muted-foreground">
-              {timestamp ? formatOnlineTime(timestamp) : ""}
+              {timestamp ? formatChatListTime(timestamp) : ""}
             </span>
           </div>
 

@@ -21,11 +21,13 @@ import Logout from "../auth/Logout";
 import { useState } from "react";
 import FriendRequestDialog from "../friendRequest/FriendRequestDialog";
 import ProfileDialog from "../profile/ProfileDialog";
+import { useFriendStore } from "@/stores/useFriendStore";
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
   const [friendRequestOpen, setfriendRequestOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const receivedCount = useFriendStore((state) => state.receivedList.length);
 
   return (
     <>
@@ -37,15 +39,19 @@ export function NavUser({ user }: { user: User }) {
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src={user.avatarUrl}
-                    alt={user.displayName}
-                  />
-                  <AvatarFallback className="rounded-lg">
-                    {user.displayName.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src={user.avatarUrl} alt={user.displayName} />
+                    <AvatarFallback className="rounded-lg">
+                      {user.displayName.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {receivedCount > 0 && (
+                    <span className="absolute -right-2 -top-2 flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
+                      {receivedCount > 99 ? "99+" : receivedCount}
+                    </span>
+                  )}
+                </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.displayName}</span>
                   <span className="truncate text-xs">{user.username}</span>
@@ -83,7 +89,14 @@ export function NavUser({ user }: { user: User }) {
                   Tài Khoản
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setfriendRequestOpen(true)}>
-                  <Bell className="text-muted-foreground dark:group-focus:!text-accent-foreground" />
+                  <span className="relative">
+                    <Bell className="text-muted-foreground dark:group-focus:!text-accent-foreground" />
+                    {receivedCount > 0 && (
+                      <span className="absolute -right-2 -top-2 flex size-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+                        {receivedCount > 9 ? "9+" : receivedCount}
+                      </span>
+                    )}
+                  </span>
                   Thông Báo
                 </DropdownMenuItem>
               </DropdownMenuGroup>
