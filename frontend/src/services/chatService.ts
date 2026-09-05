@@ -35,13 +35,15 @@ export const chatService = {
     recipientId: string,
     content: string = "",
     imgUrl?: string,
-    conversationId?: string
+    conversationId?: string,
+    replyToId?: string
   ) {
     const res = await api.post("/messages/direct", {
       recipientId,
       content,
       imgUrl,
       conversationId,
+      replyToId,
     });
 
     return res.data.message;
@@ -50,12 +52,14 @@ export const chatService = {
   async sendGroupMessage(
     conversationId: string,
     content: string = "",
-    imgUrl?: string
+    imgUrl?: string,
+    replyToId?: string
   ) {
     const res = await api.post("/messages/group", {
       conversationId,
       content,
       imgUrl,
+      replyToId,
     });
     return res.data.message;
   },

@@ -12,7 +12,7 @@ import { useSocketStore } from "@/stores/useSocketStore";
 
 const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
   const { user } = useAuthStore();
-  const { sendDirectMessage, sendGroupMessage } = useChatStore();
+  const { sendDirectMessage, sendGroupMessage, replyTo, setReplyTo } = useChatStore();
   const [value, setValue] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +42,9 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
     if (!user) return;
     if (!value.trim() && !image) return;
     const currValue = value;
+    const currReplyTo = replyTo;
     setValue("");
+    setReplyTo(null);
 
     try {
       const imgUrl = image ? await chatService.uploadMessageImage(image) : undefined;
@@ -50,9 +52,9 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
       if (selectedConvo.type === "direct") {
         const participants = selectedConvo.participants;
         const otherUser = participants.filter((p) => p._id !== user._id)[0];
-        await sendDirectMessage(otherUser._id, currValue, imgUrl);
+        await sendDirectMessage(otherUser._id, currValue, imgUrl, currReplyTo?._id);
       } else {
-        await sendGroupMessage(selectedConvo._id, currValue, imgUrl);
+        await sendGroupMessage(selectedConvo._id, currValue, imgUrl, currReplyTo?._id);
       }
     } catch (error) {
       console.error(error);
@@ -69,6 +71,12 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
 
   return (
     <div className="flex items-center gap-2 p-3 min-h-[56px] bg-background">
+      {replyTo && (
+        <div className="absolute bottom-full left-0 right-0 flex items-center justify-between border-t bg-background px-3 py-2 text-xs">
+          <span className="truncate">Đang trả lời: {replyTo.content || "Ảnh"}</span>
+          <Button type="button" variant="ghost" size="sm" onClick={() => setReplyTo(null)}>Hủy</Button>
+        </div>
+      )}
       <Button
         variant="ghost"
         size="icon"

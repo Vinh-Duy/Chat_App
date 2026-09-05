@@ -40,6 +40,7 @@ export interface ChatState {
     }
   >;
   activeConversationId: string | null;
+  replyTo: Message | null;
   convoLoading: boolean;
   messageLoading: boolean;
   loading: boolean;
@@ -48,16 +49,9 @@ export interface ChatState {
   setActiveConversation: (id: string | null) => void;
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId?: string) => Promise<void>;
-  sendDirectMessage: (
-    recipientId: string,
-    content: string,
-    imgUrl?: string
-  ) => Promise<void>;
-  sendGroupMessage: (
-    conversationId: string,
-    content: string,
-    imgUrl?: string
-  ) => Promise<void>;
+  sendDirectMessage: (recipientId: string, content: string, imgUrl?: string, replyToId?: string) => Promise<void>;
+  sendGroupMessage: (conversationId: string, content: string, imgUrl?: string, replyToId?: string) => Promise<void>;
+  setReplyTo: (message: Message | null) => void;
   // add message
   addMessage: (message: Message) => Promise<void>;
   updateMessageReactions: (messageId: string, reactions: Message["reactions"]) => void;

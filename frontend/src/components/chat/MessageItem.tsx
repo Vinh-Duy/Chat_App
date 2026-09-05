@@ -4,7 +4,7 @@ import UserAvatar from "./UserAvatar";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { SmilePlus } from "lucide-react";
+import { Reply, SmilePlus } from "lucide-react";
 import { useState } from "react";
 import { chatService } from "@/services/chatService";
 import { useChatStore } from "@/stores/useChatStore";
@@ -31,6 +31,7 @@ const MessageItem = ({
   const updateMessageReactions = useChatStore(
     (state) => state.updateMessageReactions
   );
+  const setReplyTo = useChatStore((state) => state.setReplyTo);
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
 
   const isShowTime =
@@ -142,6 +143,23 @@ const MessageItem = ({
             >
               <SmilePlus className="size-4" />
             </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Reply to message"
+              className="absolute -right-16 top-1/2 size-7 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={() => setReplyTo(message)}
+            >
+              <Reply className="size-4" />
+            </Button>
+
+            {message.replyTo && (
+              <div className="mb-1 max-w-full rounded border-l-2 border-primary/60 bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
+                {message.replyTo.content || "Ảnh đính kèm"}
+              </div>
+            )}
 
             {!!message.reactions?.length && (
               <div className="mt-1 flex flex-wrap gap-1">

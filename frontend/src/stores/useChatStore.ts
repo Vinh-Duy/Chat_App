@@ -11,6 +11,7 @@ export const useChatStore = create<ChatState>()(
       conversations: [],
       messages: {},
       activeConversationId: null,
+      replyTo: null,
       convoLoading: false, // convo loading
       messageLoading: false,
       loading: false,
@@ -21,6 +22,7 @@ export const useChatStore = create<ChatState>()(
           conversations: [],
           messages: {},
           activeConversationId: null,
+          replyTo: null,
           convoLoading: false,
           messageLoading: false,
         });
@@ -84,14 +86,15 @@ export const useChatStore = create<ChatState>()(
           set({ messageLoading: false });
         }
       },
-      sendDirectMessage: async (recipientId, content, imgUrl) => {
+      sendDirectMessage: async (recipientId, content, imgUrl, replyToId) => {
         try {
           const { activeConversationId } = get();
           await chatService.sendDirectMessage(
             recipientId,
             content,
             imgUrl,
-            activeConversationId || undefined
+            activeConversationId || undefined,
+            replyToId
           );
           set((state) => ({
             conversations: state.conversations.map((c) =>
@@ -102,9 +105,9 @@ export const useChatStore = create<ChatState>()(
           console.error("Lỗi xảy ra khi gửi direct message", error);
         }
       },
-      sendGroupMessage: async (conversationId, content, imgUrl) => {
+      sendGroupMessage: async (conversationId, content, imgUrl, replyToId) => {
         try {
-          await chatService.sendGroupMessage(conversationId, content, imgUrl);
+          await chatService.sendGroupMessage(conversationId, content, imgUrl, replyToId);
           set((state) => ({
             conversations: state.conversations.map((c) =>
               c._id === get().activeConversationId ? { ...c, seenBy: [] } : c
@@ -114,6 +117,7 @@ export const useChatStore = create<ChatState>()(
           console.error("Lỗi xảy ra gửi group message", error);
         }
       },
+      setReplyTo: (message) => set({ replyTo: message }),
       addMessage: async (message) => {
         try {
           const { user } = useAuthStore.getState();
