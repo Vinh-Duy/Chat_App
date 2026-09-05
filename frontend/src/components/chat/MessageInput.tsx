@@ -94,7 +94,7 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
   };
 
   return (
-    <div className="flex items-center gap-2 p-3 min-h-[56px] bg-background">
+    <div className="relative flex min-h-[56px] items-center gap-1 bg-background p-2 sm:gap-2 sm:p-3">
       {replyTo && (
         <div className="absolute bottom-full left-0 right-0 flex items-center justify-between border-t bg-background px-3 py-2 text-xs">
           <span className="truncate">Đang trả lời: {replyTo.content || "Ảnh"}</span>
@@ -130,7 +130,7 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Soạn tin nhắn..."
-          className="pr-20 h-9 bg-white border-border/50 focus:border-primary/50 transition-smooth resize-none"
+          className="h-9 bg-white pr-12 border-border/50 focus:border-primary/50 transition-smooth resize-none sm:pr-20"
         ></Input>
         <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
           <Button
