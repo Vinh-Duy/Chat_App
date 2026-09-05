@@ -5,6 +5,8 @@ import {
   sendGroupMessage,
   uploadMessageImage,
   toggleMessageReaction,
+  editMessage,
+  deleteMessage,
 } from "../controllers/messageController.js";
 import {
   checkFriendship,
@@ -18,5 +20,7 @@ router.post("/direct", checkFriendship, sendDirectMessage);
 router.post("/group", checkGroupMembership, sendGroupMessage);
 router.post("/upload-image", upload.single("file"), uploadMessageImage);
 router.patch("/:messageId/reaction", toggleMessageReaction);
+router.patch("/:messageId", editMessage);
+router.delete("/:messageId", deleteMessage);
 
 export default router;

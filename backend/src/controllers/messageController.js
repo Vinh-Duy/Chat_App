@@ -161,3 +161,42 @@ export const toggleMessageReaction = async (req, res) => {
     return res.status(500).json({ message: "Could not update reaction" });
   }
 };
+
+const findOwnedMessage = async (messageId, userId) =>
+  Message.findOne({ _id: messageId, senderId: userId });
+
+export const editMessage = async (req, res) => {
+  try {
+    const content = req.body.content?.trim();
+    if (!content) return res.status(400).json({ message: "Message cannot be empty" });
+
+    const message = await findOwnedMessage(req.params.messageId, req.user._id);
+    if (!message) return res.status(404).json({ message: "Message not found" });
+
+    message.content = content;
+    await message.save();
+    io.to(message.conversationId.toString()).emit("message-updated", { message });
+    return res.status(200).json({ message });
+  } catch (error) {
+    console.error("Failed to edit message", error);
+    return res.status(500).json({ message: "Could not edit message" });
+  }
+};
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const message = await findOwnedMessage(req.params.messageId, req.user._id);
+    if (!message) return res.status(404).json({ message: "Message not found" });
+
+    const conversationId = message.conversationId;
+    await message.deleteOne();
+    io.to(conversationId.toString()).emit("message-deleted", {
+      messageId: req.params.messageId,
+      conversationId,
+    });
+    return res.status(200).json({ messageId: req.params.messageId });
+  } catch (error) {
+    console.error("Failed to delete message", error);
+    return res.status(500).json({ message: "Could not delete message" });
+  }
+};
