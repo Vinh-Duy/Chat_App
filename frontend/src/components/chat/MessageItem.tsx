@@ -4,7 +4,7 @@ import UserAvatar from "./UserAvatar";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Reply, SmilePlus } from "lucide-react";
+import { Pencil, Reply, SmilePlus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { chatService } from "@/services/chatService";
 import { useChatStore } from "@/stores/useChatStore";
@@ -32,6 +32,8 @@ const MessageItem = ({
     (state) => state.updateMessageReactions
   );
   const setReplyTo = useChatStore((state) => state.setReplyTo);
+  const setEditingMessage = useChatStore((state) => state.setEditingMessage);
+  const removeMessage = useChatStore((state) => state.removeMessage);
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
 
   const isShowTime =
@@ -143,6 +145,35 @@ const MessageItem = ({
             >
               <SmilePlus className="size-4" />
             </Button>
+
+            {message.isOwn && (
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Edit message"
+                  className="absolute -left-16 top-1/2 size-7 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+                  onClick={() => setEditingMessage(message)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Delete message"
+                  className="absolute -left-24 top-1/2 size-7 -translate-y-1/2 opacity-0 text-destructive transition-opacity group-hover:opacity-100"
+                  onClick={async () => {
+                    if (!window.confirm("Xóa tin nhắn này?")) return;
+                    await chatService.deleteMessage(message._id);
+                    removeMessage(message._id);
+                  }}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </>
+            )}
 
             <Button
               type="button"

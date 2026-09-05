@@ -74,6 +74,15 @@ export const chatService = {
     return res.data.reactions as Message["reactions"];
   },
 
+  async editMessage(messageId: string, content: string) {
+    const res = await api.patch(`/messages/${messageId}`, { content });
+    return res.data.message as Message;
+  },
+
+  async deleteMessage(messageId: string) {
+    await api.delete(`/messages/${messageId}`);
+  },
+
   async createConversation(
     type: "direct" | "group",
     name: string,

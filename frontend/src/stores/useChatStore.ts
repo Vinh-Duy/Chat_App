@@ -12,6 +12,7 @@ export const useChatStore = create<ChatState>()(
       messages: {},
       activeConversationId: null,
       replyTo: null,
+      editingMessage: null,
       convoLoading: false, // convo loading
       messageLoading: false,
       loading: false,
@@ -23,6 +24,7 @@ export const useChatStore = create<ChatState>()(
           messages: {},
           activeConversationId: null,
           replyTo: null,
+          editingMessage: null,
           convoLoading: false,
           messageLoading: false,
         });
@@ -118,6 +120,32 @@ export const useChatStore = create<ChatState>()(
         }
       },
       setReplyTo: (message) => set({ replyTo: message }),
+      setEditingMessage: (message) => set({ editingMessage: message }),
+      updateMessageContent: (messageId, content) => {
+        set((state) => ({
+          messages: Object.fromEntries(
+            Object.entries(state.messages).map(([conversationId, entry]) => [
+              conversationId,
+              {
+                ...entry,
+                items: entry.items.map((message) =>
+                  message._id === messageId ? { ...message, content, updatedAt: new Date().toISOString() } : message
+                ),
+              },
+            ])
+          ),
+        }));
+      },
+      removeMessage: (messageId) => {
+        set((state) => ({
+          messages: Object.fromEntries(
+            Object.entries(state.messages).map(([conversationId, entry]) => [
+              conversationId,
+              { ...entry, items: entry.items.filter((message) => message._id !== messageId) },
+            ])
+          ),
+        }));
+      },
       addMessage: async (message) => {
         try {
           const { user } = useAuthStore.getState();

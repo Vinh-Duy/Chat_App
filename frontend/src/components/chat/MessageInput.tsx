@@ -12,7 +12,15 @@ import { useSocketStore } from "@/stores/useSocketStore";
 
 const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
   const { user } = useAuthStore();
-  const { sendDirectMessage, sendGroupMessage, replyTo, setReplyTo } = useChatStore();
+  const {
+    sendDirectMessage,
+    sendGroupMessage,
+    replyTo,
+    setReplyTo,
+    editingMessage,
+    setEditingMessage,
+    updateMessageContent,
+  } = useChatStore();
   const [value, setValue] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,10 +46,26 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
     };
   }, [socket, selectedConvo._id, value]);
 
+  useEffect(() => {
+    setValue(editingMessage?.content ?? "");
+  }, [editingMessage]);
+
   const sendMessage = async () => {
     if (!user) return;
     if (!value.trim() && !image) return;
     const currValue = value;
+    if (editingMessage) {
+      try {
+        const updated = await chatService.editMessage(editingMessage._id, currValue);
+        updateMessageContent(updated._id, updated.content ?? "");
+        setEditingMessage(null);
+        setValue("");
+      } catch (error) {
+        console.error(error);
+        toast.error("Không thể sửa tin nhắn");
+      }
+      return;
+    }
     const currReplyTo = replyTo;
     setValue("");
     setReplyTo(null);
@@ -77,6 +101,12 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
           <Button type="button" variant="ghost" size="sm" onClick={() => setReplyTo(null)}>Hủy</Button>
         </div>
       )}
+      {editingMessage && (
+        <div className="absolute bottom-full left-0 right-0 flex items-center justify-between border-t bg-background px-3 py-2 text-xs">
+          <span className="truncate">Đang chỉnh sửa tin nhắn</span>
+          <Button type="button" variant="ghost" size="sm" onClick={() => setEditingMessage(null)}>Hủy</Button>
+        </div>
+      )}
       <Button
         variant="ghost"
         size="icon"
@@ -91,6 +121,7 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
         accept="image/*"
         hidden
         onChange={(event) => setImage(event.target.files?.[0] ?? null)}
+        disabled={!!editingMessage}
       />
 
       <div className="flex-1 relative">
@@ -122,7 +153,7 @@ const MessageInput = ({ selectedConvo }: { selectedConvo: Conversation }) => {
         className="bg-gradient-chat hover:shadow-glow transition-smooth hover:scale-105"
         disabled={!value.trim() && !image}
       >
-        <Send className="size-4 text-white" />
+        {editingMessage ? "Lưu" : <Send className="size-4 text-white" />}
       </Button>
     </div>
   );

@@ -62,6 +62,14 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       useChatStore.getState().updateMessageReactions(messageId, reactions);
     });
 
+    socket.on("message-updated", ({ message }) => {
+      useChatStore.getState().updateMessageContent(message._id, message.content);
+    });
+
+    socket.on("message-deleted", ({ messageId }) => {
+      useChatStore.getState().removeMessage(messageId);
+    });
+
     socket.on("friend-request", (request) => {
       useFriendStore.setState((state) => ({
         receivedList: state.receivedList.some((item) => item._id === request._id)
