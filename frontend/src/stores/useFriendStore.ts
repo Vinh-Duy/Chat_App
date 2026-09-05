@@ -1,6 +1,7 @@
 import { friendService } from "@/services/friendService";
 import type { FriendState } from "@/types/store";
 import { create } from "zustand";
+import axios from "axios";
 
 export const useFriendStore = create<FriendState>((set) => ({
   friends: [],
@@ -28,7 +29,10 @@ export const useFriendStore = create<FriendState>((set) => ({
       return resultMessage;
     } catch (error) {
       console.error("Lỗi xảy ra khi addFriend", error);
-      return "Lỗi xảy ra khi gửi kết bạn. Hãy thử lại";
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message
+        : undefined;
+      throw new Error(message || "Lỗi xảy ra khi gửi kết bạn. Hãy thử lại");
     } finally {
       set({ loading: false });
     }
