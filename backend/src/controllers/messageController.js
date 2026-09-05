@@ -100,3 +100,56 @@ export const sendGroupMessage = async (req, res) => {
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };
+
+export const toggleMessageReaction = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { emoji } = req.body;
+    const allowedEmojis = ["❤️", "👍", "😂", "😮", "😢", "😡"];
+
+    if (!allowedEmojis.includes(emoji)) {
+      return res.status(400).json({ message: "Unsupported reaction" });
+    }
+
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    const conversation = await Conversation.findById(message.conversationId);
+    const isMember = conversation?.participants.some(
+      (participant) => participant.userId.toString() === req.user._id.toString()
+    );
+
+    if (!isMember) {
+      return res.status(403).json({ message: "You are not in this conversation" });
+    }
+
+    const userId = req.user._id.toString();
+    const existing = message.reactions.find(
+      (reaction) => reaction.userId.toString() === userId
+    );
+
+    if (existing?.emoji === emoji) {
+      message.reactions = message.reactions.filter(
+        (reaction) => reaction.userId.toString() !== userId
+      );
+    } else if (existing) {
+      existing.emoji = emoji;
+    } else {
+      message.reactions.push({ userId: req.user._id, emoji });
+    }
+
+    await message.save();
+    io.to(message.conversationId.toString()).emit("message-reaction", {
+      messageId: message._id,
+      conversationId: message.conversationId,
+      reactions: message.reactions,
+    });
+
+    return res.status(200).json({ reactions: message.reactions });
+  } catch (error) {
+    console.error("Failed to toggle message reaction", error);
+    return res.status(500).json({ message: "Could not update reaction" });
+  }
+};
