@@ -80,7 +80,7 @@ const PersonalInfoForm = ({ userInfo }: Props) => {
               <Input
                 id={key}
                 type={type ?? "text"}
-                value={userInfo[key] ?? ""}
+                value={form[key] ?? ""}
                 onChange={(event) => updateField(key, event.target.value)}
                 className="glass-light border-border/30"
               />
@@ -93,7 +93,7 @@ const PersonalInfoForm = ({ userInfo }: Props) => {
           <Textarea
             id="bio"
             rows={3}
-            value={userInfo.bio ?? ""}
+            value={form.bio ?? ""}
             onChange={(event) => updateField("bio", event.target.value)}
             className="glass-light border-border/30 resize-none"
           />
