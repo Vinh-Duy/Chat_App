@@ -150,6 +150,23 @@ export const useChatStore = create<ChatState>()(
           console.error("Lỗi xảy khi ra add message:", error);
         }
       },
+      updateMessageReactions: (messageId, reactions) => {
+        set((state) => {
+          const messages = Object.fromEntries(
+            Object.entries(state.messages).map(([conversationId, entry]) => [
+              conversationId,
+              {
+                ...entry,
+                items: entry.items.map((message) =>
+                  message._id === messageId ? { ...message, reactions } : message
+                ),
+              },
+            ])
+          );
+
+          return { messages };
+        });
+      },
       updateConversation: (conversation) => {
         set((state) => ({
           conversations: state.conversations.map((c) =>

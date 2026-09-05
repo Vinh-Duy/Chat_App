@@ -3,6 +3,13 @@ import type { Conversation, Message, Participant } from "@/types/chat";
 import UserAvatar from "./UserAvatar";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { SmilePlus } from "lucide-react";
+import { useState } from "react";
+import { chatService } from "@/services/chatService";
+import { useChatStore } from "@/stores/useChatStore";
+
+const REACTIONS = ["❤️", "👍", "😂", "😮", "😢", "😡"];
 
 interface MessageItemProps {
   message: Message;
@@ -19,6 +26,11 @@ const MessageItem = ({
   selectedConvo,
   lastMessageStatus,
 }: MessageItemProps) => {
+  const [reactionMenuOpen, setReactionMenuOpen] = useState(false);
+  const [reactionLoading, setReactionLoading] = useState(false);
+  const updateMessageReactions = useChatStore(
+    (state) => state.updateMessageReactions
+  );
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
 
   const isShowTime =
@@ -68,12 +80,13 @@ const MessageItem = ({
             message.isOwn ? "items-end" : "items-start"
           )}
         >
-          <Card
-            className={cn(
-              "p-3",
-              message.isOwn ? "chat-bubble-sent border-0" : "chat-bubble-received"
-            )}
-          >
+          <div className="relative group">
+            <Card
+              className={cn(
+                "p-3",
+                message.isOwn ? "chat-bubble-sent border-0" : "chat-bubble-received"
+              )}
+            >
             {message.imgUrl && (
               <img
                 src={message.imgUrl}
@@ -84,7 +97,67 @@ const MessageItem = ({
             {message.content && (
               <p className="text-sm leading-relaxed break-words">{message.content}</p>
             )}
-          </Card>
+            </Card>
+
+            <div
+              className={cn(
+                "absolute -top-10 flex items-center gap-1 rounded-full border bg-background p-1 shadow-md transition-opacity",
+                message.isOwn ? "right-0" : "left-0",
+                reactionMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+              )}
+            >
+              {REACTIONS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  title={`React ${emoji}`}
+                  className="size-7 rounded-full text-sm hover:bg-primary/10"
+                  disabled={reactionLoading}
+                  onClick={async () => {
+                    setReactionLoading(true);
+                    try {
+                      const reactions = await chatService.toggleMessageReaction(
+                        message._id,
+                        emoji
+                      );
+                      updateMessageReactions(message._id, reactions);
+                      setReactionMenuOpen(false);
+                    } finally {
+                      setReactionLoading(false);
+                    }
+                  }}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Add reaction"
+              className="absolute -right-9 top-1/2 size-7 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={() => setReactionMenuOpen((open) => !open)}
+            >
+              <SmilePlus className="size-4" />
+            </Button>
+
+            {!!message.reactions?.length && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {Object.entries(
+                  message.reactions.reduce<Record<string, number>>((counts, reaction) => {
+                    counts[reaction.emoji] = (counts[reaction.emoji] ?? 0) + 1;
+                    return counts;
+                  }, {})
+                ).map(([emoji, count]) => (
+                  <span key={emoji} className="rounded-full border bg-background px-1.5 py-0.5 text-xs shadow-sm">
+                    {emoji} {count > 1 ? count : ""}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* seen/ delivered */}
           {message.isOwn && message._id === selectedConvo.lastMessage?._id && (

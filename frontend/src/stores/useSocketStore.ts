@@ -58,6 +58,10 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       }));
     });
 
+    socket.on("message-reaction", ({ messageId, reactions }) => {
+      useChatStore.getState().updateMessageReactions(messageId, reactions);
+    });
+
     socket.on("friend-request", (request) => {
       useFriendStore.setState((state) => ({
         receivedList: state.receivedList.some((item) => item._id === request._id)

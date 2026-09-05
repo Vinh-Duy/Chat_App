@@ -60,6 +60,7 @@ export interface ChatState {
   ) => Promise<void>;
   // add message
   addMessage: (message: Message) => Promise<void>;
+  updateMessageReactions: (messageId: string, reactions: Message["reactions"]) => void;
   // update convo
   updateConversation: (
     conversation: Partial<Conversation> & Pick<Conversation, "_id">

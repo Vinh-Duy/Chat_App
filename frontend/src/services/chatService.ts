@@ -65,6 +65,11 @@ export const chatService = {
     return res.data;
   },
 
+  async toggleMessageReaction(messageId: string, emoji: string) {
+    const res = await api.patch(`/messages/${messageId}/reaction`, { emoji });
+    return res.data.reactions as Message["reactions"];
+  },
+
   async createConversation(
     type: "direct" | "group",
     name: string,
