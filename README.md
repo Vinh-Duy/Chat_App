@@ -4,15 +4,13 @@ ChatsApp is a real-time web chat application with direct messaging, group conver
 
 ## Live Services
 
-- Frontend: [https://aptfrontend.vercel.app](https://aptfrontend.vercel.app/)
-- Backend API: [https://moji-realtimechatapp-backend.onrender.com](https://moji-realtimechatapp-backend.onrender.com)
-- API health check after the latest backend deployment: [https://moji-realtimechatapp-backend.onrender.com/api/health](https://moji-realtimechatapp-backend.onrender.com/api/health)
-- API documentation: [https://moji-realtimechatapp-backend.onrender.com/api-docs](https://moji-realtimechatapp-backend.onrender.com/api-docs)
+- Frontend: [https://chat-app-vinh-duys-projects.vercel.app](https://chat-app-vinh-duys-projects.vercel.app/)
+- Backend API: [https://apt-backend-3208.onrender.com](https://apt-backend-3208.onrender.com)
+- API health check: [https://apt-backend-3208.onrender.com/api/health](https://apt-backend-3208.onrender.com/api/health)
+- API documentation: [https://apt-backend-3208.onrender.com/api-docs](https://apt-backend-3208.onrender.com/api-docs)
 - Repository: [https://github.com/vinhduy-https/APT](https://github.com/vinhduy-https/APT)
 
-Set `CLIENT_URL=https://aptfrontend.vercel.app` in the Render backend environment.
-
-The health endpoint was added in the current source. Redeploy the backend on Render before relying on the live health-check link.
+Set `CLIENT_URL=https://chat-app-vinh-duys-projects.vercel.app` in the Render backend environment.
 
 ## Features
 
@@ -116,8 +114,8 @@ Import the repository into Vercel and set the project root to `frontend`.
 Set these Vercel environment variables:
 
 ```env
-VITE_API_URL=https://moji-realtimechatapp-backend.onrender.com/api
-VITE_SOCKET_URL=https://moji-realtimechatapp-backend.onrender.com
+VITE_API_URL=https://apt-backend-3208.onrender.com/api
+VITE_SOCKET_URL=https://apt-backend-3208.onrender.com
 ```
 
 Deploy after setting the variables. Vite embeds these values at build time, so redeploy after changing them.
@@ -142,7 +140,7 @@ npm start         # Start the production server
 
 ## API Documentation
 
-When the backend is running, Swagger UI is available at `/api-docs`. The deployed documentation is available at [moji-realtimechatapp-backend.onrender.com/api-docs](https://moji-realtimechatapp-backend.onrender.com/api-docs).
+When the backend is running, Swagger UI is available at `/api-docs`. The deployed documentation is available at [apt-backend-3208.onrender.com/api-docs](https://apt-backend-3208.onrender.com/api-docs).
 
 ## Security Notes
 
