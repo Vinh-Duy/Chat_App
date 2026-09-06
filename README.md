@@ -8,7 +8,7 @@ ChatsApp is a real-time web chat application with direct messaging, group conver
 - Backend API: [https://apt-backend-3208.onrender.com](https://apt-backend-3208.onrender.com)
 - API health check: [https://apt-backend-3208.onrender.com/api/health](https://apt-backend-3208.onrender.com/api/health)
 - API documentation: [https://apt-backend-3208.onrender.com/api-docs](https://apt-backend-3208.onrender.com/api-docs)
-- Repository: [https://github.com/vinhduy-https/APT](https://github.com/vinhduy-https/APT)
+- Repository: [https://github.com/Vinh-Duy/Chat_App](https://github.com/Vinh-Duy/Chat_App)
 
 Set `CLIENT_URL=https://chat-app-vinh-duys-projects.vercel.app` in the Render backend environment.
 
